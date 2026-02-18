@@ -1,0 +1,163 @@
+Terraform variables are used to define values that can be passed into a Terraform configuration. They allow you to parameterize your infrastructure and make it more flexible and reusable. Variables can be defined in a separate file (e.g., `variables.tf`) or directly within the main configuration file.
+Here is an example of how to define and use variables in Terraform on Azure cloud:
+```hcl
+# variables.tf
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+  default     = "my-resource-group"
+}
+variable "location" {
+  description = "The Azure region where resources will be created"
+  type        = string
+  default     = "eastus"
+}
+variable "vm_size" {
+  description = "The size of the virtual machine"
+  type        = string
+  default     = "Standard_DS1_v2"
+}
+```
+```hcl
+# main.tf
+provider "azurerm" {
+  features {}
+}
+resource "azurerm_resource_group" "example" {
+  name     = var.resource_group_name
+  location = var.location
+}
+resource "azurerm_virtual_machine" "example" {
+  name                  = "example-vm"
+  location              = azurerm_resource_group.example.location
+  resource_group_name   = azurerm_resource_group.example.name
+  network_interface_ids = [azurerm_network_interface.example.id]
+  vm_size               = var.vm_size
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "example-os-disk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  os_profile {
+    computer_name  = "hostname"
+    admin_username = "adminuser"
+    admin_password = "P@ssw0rd1234!"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+}
+```
+In this example, we have defined three variables: `resource_group_name`, `location`, and `vm_size`. These variables are then used in the `main.tf` file to create a resource group and a virtual machine in Azure. 
+You can override the default values of these variables by providing them when running Terraform commands or by using a `terraform.tfvars` file.
+# terraform.tfvars
+```hcl
+resource_group_name = "custom-resource-group"
+location            = "westus"
+vm_size             = "Standard_DS2_v2"
+```
+By using variables, you can easily change the configuration without modifying the main code, making it more maintainable and adaptable to different environments.
+
+output variables are used to display values after the Terraform configuration has been applied. They allow you to output important information about the resources that were created or modified. Here is an example of how to define and use output variables in Terraform on Azure cloud:
+
+```hcl
+# outputs.tf
+output "resource_group_name" {
+  description = "The name of the resource group"
+  value       = azurerm_resource_group.example.name
+}
+output "virtual_machine_id" {
+  description = "The ID of the virtual machine"
+  value       = azurerm_virtual_machine.example.id
+}
+```
+In this example, we have defined two output variables: `resource_group_name` and `virtual_machine_id`. These variables will display the name of the resource group and the ID of the virtual machine after the Terraform configuration has been applied.
+To view the output values, you can run the following command after applying the Terraform configuration:
+```bash
+terraform output
+```
+This will display the values of the output variables, allowing you to easily access important information about the resources that were created or modified.
+You can also specify the output format by using the `-json` flag:
+```bash
+terraform output -json
+```
+This will display the output values in JSON format, which can be useful for further processing or integration with other tools.
+In summary, Terraform variables and output variables are essential for creating flexible and reusable infrastructure configurations. 
+Variables allow you to parameterize your configuration, while output variables provide valuable information about the resources that were created or modified. By using these features effectively, you can enhance the maintainability and adaptability of your Terraform configurations on Azure cloud.
+
+Local values in Terraform are used to define temporary values that can be used within a module or configuration. 
+They are similar to variables but are only accessible within the scope of the module or configuration where they are defined. Local values can be useful for simplifying complex expressions, improving readability, and avoiding repetition.
+Here is an example of how to define and use local values in Terraform on Azure cloud:
+```hcl
+# main.tf
+provider "azurerm" {
+  features {}
+}
+locals {
+  resource_group_name = "my-resource-group"
+  location            = "eastus"
+  vm_size             = "Standard_DS1_v2"
+}
+resource "azurerm_resource_group" "example" {
+  name     = local.resource_group_name
+  location = local.location
+}
+resource "azurerm_virtual_machine" "example" {
+  name                  = "example-vm"
+  location              = azurerm_resource_group.example.location
+  resource_group_name   = azurerm_resource_group.example.name
+  network_interface_ids = [azurerm_network_interface.example.id]
+  vm_size               = local.vm_size
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "example-os-disk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  os_profile {
+    computer_name  = "hostname"
+    admin_username = "adminuser"
+    admin_password = "P@ssw0rd1234!"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+}
+```
+In this example, we have defined three local values: `resource_group_name`, `location`, and `vm_size`. 
+These local values are then used in the resource definitions for the resource group and virtual machine.
+
+Local values are evaluated at the time of configuration parsing, 
+which means they can be used to simplify complex expressions or to avoid repetition in your Terraform code.
+
+For example, if you have a complex expression that is used multiple times in your configuration, 
+you can define it as a local value and then reference it throughout your code. 
+This can improve readability and maintainability by reducing the amount of duplicated code.
+In summary, local values in Terraform are a powerful tool for simplifying complex expressions and improving the readability of your configuration.
+They allow you to define temporary values that can be used within a module or configuration, 
+making your Terraform code more maintainable and easier to understand.
+
+
+
+

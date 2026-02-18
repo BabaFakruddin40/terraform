@@ -1,0 +1,31 @@
+what is terraform statefile?
+Terraform state file is a JSON file that Terraform uses to keep track of the resources it manages. 
+It contains information about the current state of the infrastructure, including the resources that have been created, their attributes, and any dependencies between them. 
+The state file is essential for Terraform to determine what changes need to be made when you run `terraform apply`, as it allows Terraform to compare the desired state defined in your configuration files with the actual state of the infrastructure. 
+The state file is typically stored locally on your machine or remotely in a backend such as AWS S3, Azure Blob Storage, or HashiCorp Consul.
+
+The state file is crucial for Terraform's operation, as it enables features like resource management, dependency tracking, and state locking.
+It is important to manage the state file carefully, especially when working in a team, to avoid conflicts and ensure that everyone has access to the most up-to-date information about the infrastructure.
+In summary, the Terraform state file is a critical component of Terraform's functionality, as it allows Terraform to keep track of the resources it manages and ensures that changes are applied correctly. 
+It is important to understand how the state file works and how to manage it effectively to ensure the success of your infrastructure management with Terraform.
+
+How to storge the terraform statefile in remote backend?
+To store the Terraform state file in a remote backend, you need to configure the backend in your Terraform configuration file.
+Here are the general steps to configure a remote backend for Terraform:
+1. Choose a remote backend: Terraform supports various remote backends, such as AWS S3, Azure Blob Storage, Google Cloud Storage, HashiCorp Consul, and more. Choose the backend that best suits your needs.
+2. Configure the backend: In your Terraform configuration file (usually `main.tf`), you need to add a `backend` block to specify the remote backend you want to use. For example, if you want to use Azure blob storage as your remote backend, you would add the following block:
+```hcl
+    terraform {
+  backend "azurerm" {
+    resource_group_name  = "tfstate-rg"
+    storage_account_name = "tfstateaccount1770829975"
+    container_name       = "tfstate"
+    key                  = "demo.tfstate"
+  }
+}
+```
+3. Initialize the backend: After configuring the backend, you need to run `terraform init` to initialize the backend and migrate your existing state file (if any) to the remote backend.
+4. Use Terraform as usual: Once the backend is initialized, you can use Terraform commands like `terraform plan` and `terraform apply` as usual. Terraform will automatically read and write the state file from the remote backend.
+5. Manage state file access: Depending on the remote backend you choose, you may need to manage access to the state file. For example, if you are using Azure storage, you can use IAM policies to control who can read and write to the state file.
+In summary, to store the Terraform state file in a remote backend, you need to choose a backend, configure it in your Terraform configuration file, initialize the backend, and manage access to the state file as needed.
+
